@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio do Facultads - TADS IFSul Camaquã</title>
+    <style>
+        :root {
+            --vermelho: #E53935;
+            --verde: #43A047;
+            --azul: #1E88E5;
+            --bg-color: #FAFAFA;
+            --text-color: #2D3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background: #FFFFFF;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 650px;
+            box-sizing: border-box;
+            text-align: center;
+            border-top: 8px solid var(--azul);
+            border-bottom: 8px solid var(--vermelho);
+        }
+
+        header h1 {
+            color: var(--azul);
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: #64748B;
+            font-size: 0.95rem;
+            margin-top: 0;
+        }
+
+        .badge-facultads {
+            display: inline-block;
+            background-color: var(--verde);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .quiz-box, .start-screen, .end-screen {
+            margin-top: 20px;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        button.action-btn {
+            background-color: var(--azul);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);
+        }
+
+        button.action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background-color: #F8FAFC;
+            color: var(--text-color);
+            border: 2px solid #E2E8F0;
+            text-align: left;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #EDF2F7;
+            border-color: var(--azul);
+        }
+
+        .option-btn.correct {
+            background-color: #E8F5E9 !important;
+            border-color: var(--verde) !important;
+            color: #2E7D32 !important;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #FFEBEE !important;
+            border-color: var(--vermelho) !important;
+            color: #C62828 !important;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4A5568;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #EDF2F7;
+            padding-bottom: 10px;
+        }
+
+        #feedback-container {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 28px;
+            font-size: 0.95rem;
+        }
+
+        .instagram-box {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #F0F4F8;
+            border-radius: 8px;
+            border: 1px dashed var(--azul);
+        }
+
+        .instagram-box a {
+            color: var(--vermelho);
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+        .instagram-box a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <header>
+            <div class="badge-facultads">IFSul Camaquã - TADS</div>
+            <h1>Desafio do Facultads</h1>
+            <p>Teste seus conhecimentos com perguntas aleatórias sobre TADS!</p>
+        </header>
+
+        <!-- Tela Inicial -->
+        <div id="start-screen" class="start-screen">
+            <p style="text-align: left; line-height: 1.6;">
+                Bem-vindo(a) ao <strong>Desafio do Facultads</strong>! A cada rodada, 10 perguntas inéditas são sorteadas do nosso banco sobre programação, banco de dados, engenharia de software e o IFSul Camaquã. Divirta-se e teste sua pontuação!
+            </p>
+            <button class="action-btn" onclick="startGame()">Iniciar Desafio</button>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div id="quiz-box" class="quiz-box hide">
+            <div class="stats">
+                <span id="question-counter">Questão 1/10</span>
+                <span id="score-display">Pontos: 0</span>
+            </div>
+            
+            <h3 id="question-text" style="text-align: left; color: #1A202C;">Pergunta aparece aqui</h3>
+
+            <div class="options-grid" id="options-container">
+                <!-- Opções injetadas via JavaScript -->
+            </div>
+
+            <div id="feedback-container"></div>
+            <button id="next-btn" class="action-btn hide" onclick="nextQuestion()">Próxima Pergunta</button>
+        </div>
+
+        <!-- Tela Final -->
+        <div id="end-screen" class="end-screen hide">
+            <h2 style="color: var(--azul);">Fim de Jogo! 🏆</h2>
+            <p id="final-message" style="font-size: 1.1rem; margin: 15px 0; line-height: 1.5;"></p>
+            
+            <div class="instagram-box">
+                <p style="margin: 0 0 5px 0; font-size: 0.9rem; color: #4A5568;">Siga a nossa página oficial no Instagram:</p>
+                <a href="https://instagram.com/facul_tads" target="_blank">📸 @facul_tads</a>
+            </div>
+
+            <button class="action-btn" onclick="startGame()">Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        const questionBank = [
+            {
+                question: "Qual é a duração padrão do curso superior de TADS no IFSul Campus Camaquã?",
+                options: ["2 anos (4 semestres)", "3 anos (6 semestres)", "4 anos (8 semestres)", "5 anos (10 semestres)"],
+                answer: 1,
+                explanation: "Exato! O curso tem duração de 3 anos (6 semestres)."
+            },
+            {
+                question: "Em qual endereço físico está localizado o campus do IFSul que oferta o TADS na cidade?",
+                options: ["Rua Ana Gonçalves da Silva, 901", "Avenida Central de Camaquã, 100", "Rodovia BR-116, km 300", "Rua Marechal Floriano, 50"],
+                answer: 0,
+                explanation: "Correto! O campus fica na Rua Ana Gonçalves da Silva, 901."
+            },
+            {
+                question: "Qual é o principal foco profissional do tecnólogo formado em TADS?",
+                options: ["Conserto de hardware e montagem de computadores", "Desenvolvimento, análise, teste e implantação de sistemas de software", "Cabeamento estruturado e configuração de roteadores", "Suporte técnico exclusivo de redes locais"],
+                answer: 1,
+                explanation: "Perfeito! O foco central é o ciclo de vida completo de softwares e sistemas."
+            },
+            {
+                question: "Qual o e-mail oficial de contato com a coordenadoria do curso de TADS em Camaquã?",
+                options: ["tads@camaqua.ifsul.edu.br", "cm-tads@camaqua.ifsul.edu.br", "coordenacao.tads@ifsul.edu.br", "atendimento@ifsul-camaqua.br"],
+                answer: 1,
+                explanation: "Isso mesmo! O canal oficial é cm-tads@camaqua.ifsul.edu.br."
+            },
+            {
+                question: "Qual grau acadêmico o estudante obtém ao concluir com sucesso o curso de TADS?",
+                options: ["Bacharel em Ciências da Computação", "Tecnólogo em Análise e Desenvolvimento de Sistemas", "Técnico em Informática Industrial", "Engenheiro de Software"],
+                answer: 1,
+                explanation: "Correto! O diploma conferido é de Ensino Superior de Tecnólogo."
+            },
+            {
+                question: "Como é o financiamento e a natureza administrativa do IFSul enquanto instituição de ensino?",
+                options: ["Instituição privada com mensalidades acessíveis", "Autarquia federal de ensino público, gratuito e de qualidade", "Faculdade comunitária com bolsas parciais", "Fundação particular sem fins lucrativos"],
+                answer: 1,
+                explanation: "Exato! O IFSul é uma instituição pública federal totalmente gratuita."
+            },
+            {
+                question: "Que tipo de metodologias e abordagens práticas costumam ser centrais no aprendizado de TADS?",
+                options: ["Estudos focados unicamente em memorização teórica de livros antigos", "Desenvolvimento de projetos práticos de programação e resolução de problemas reais", "Apenas testes em papel sem a utilização de computadores", "Práticas exclusivas de desenho gráfico vetorial"],
+                answer: 1,
+                explanation: "Isso aí! A prática com códigos, projetos reais e lógica é a base do curso."
+            },
+            {
+                question: "Qual nota ou destaque de prestígio acadêmico o curso de TADS de Camaquã já acumulou em avaliações de guias educacionais?",
+                options: ["Avaliação de destaque de 4 estrelas (Guia da Faculdade)", "Nota 1 de 5 estrelas em infraestrutura", "Nenhuma avaliação ou menção em rankings", "Menção honrosa internacional de artes"],
+                answer: 0,
+                explanation: "Correto! O curso coleciona avaliações de destaque (4 estrelas)."
+            },
+            {
+                question: "Quais pilares tecnológicos costumam integrar fortemente o currículo de modernização de software em TADS?",
+                options: ["Linguagens de programação atuais, bancos de dados e engenharia de software", "Mecânica automotiva e elétrica básica", "Manutenção de centrais telefônicas analógicas", "Arquitetura de construções civis"],
+                answer: 0,
+                explanation: "Perfeito! O uso de linguagens modernas e engenharia de software moldam a grade."
+            },
+            {
+                question: "Qual é o impacto principal do IFSul Campus Camaquã na região através do curso de TADS?",
+                options: ["Isolar tecnologicamente a cidade dos polos vizinhos", "Capacitar profissionais qualificados e impulsionar a inovação tecnológica local", "Oferecer apenas cursos voltados para a agricultura familiar de subsistência", "Atuar estritamente como escola de ensino fundamental"],
+                answer: 1,
+                explanation: "Correto! O campus fomenta a tecnologia, a inovação e o mercado de TI na região."
+            },
+            {
+                question: "Em que turno as aulas do curso superior de TADS no IFSul Camaquã são ofertadas predominantemente?",
+                options: ["Apenas pela manhã", "Apenas na madrugada", "No turno da noite", "Em regime integral de 12 horas"],
+                answer: 2,
+                explanation: "Isso mesmo! O curso noturno facilita para quem estuda e trabalha."
+            },
+            {
+                question: "O que significa a sigla TADS dentro do contexto do ensino superior do IFSul?",
+                options: ["Técnico em Administração de Sistemas", "Tecnologia em Análise e Desenvolvimento de Sistemas", "Tecnologia Avançada em Dados e Software", "Treinamento Aplicado em Desenvolvimento de Sites"],
+                answer: 1,
+                explanation: "Exato! Significa Tecnologia em Análise e Desenvolvimento de Sistemas."
+            },
+            {
+                question: "Além de programar, o que um analista de sistemas estuda para projetar aplicações robustas?",
+                options: ["Engenharia de trânsito urbano", "Modelagem de dados e arquitetura de software", "Culinária industrial avançada", "Manutenção de motores a combustão"],
+                answer: 1,
+                explanation: "Correto! Modelagem e arquitetura são pilares fundamentais da análise."
+            },
+            {
+                question: "Qual é uma das principais vantagens de cursar uma faculdade pública federal como o IFSul?",
+                options: ["Não emitir diplomas válidos", "Garantir gratuidade e acesso a ensino, pesquisa e extensão", "Ser obrigatório pagar taxa de matrícula semestral", "Não possuir laboratórios de informática"],
+                answer: 1,
+                explanation: "Perfeito! A indissociabilidade entre ensino, pesquisa e extensão é marca registrada."
+            },
+            {
+                question: "O ingresso nos cursos superiores do IFSul geralmente ocorre através de qual processo seletivo principal?",
+                options: ["Sorteio em praça pública", "Nota do Exame Nacional do Ensino Médio (ENEM) e SISU", "Concurso de redação impressa em banca de jornal", "Avaliação exclusiva de habilidades artísticas"],
+                answer: 1,
+                explanation: "Isso aí! O acesso se dá principalmente via ENEM e SISU."
+            },
+            {
+                question: "Que tipo de ambiente os alunos utilizam intensamente para aulas práticas de programação no campus?",
+                options: ["Laboratórios de informática equipados", "Salas de aula sem energia elétrica", "Áreas abertas de gramado sem computadores", "Oficinas mecânicas de tornearia"],
+                answer: 0,
+                explanation: "Correto! Os laboratórios de informática dão suporte total à prática."
+            },
+            {
+                question: "Qual é a importância das atividades de Extensão dentro do curso de TADS?",
+                options: ["Isolar os estudantes da comunidade local", "Conectar o conhecimento acadêmico com as demandas reais da sociedade e da região", "Substituir totalmente todas as aulas teóricas de programação", "Apenas realizar cobranças de taxas estudantis"],
+                answer: 1,
+                explanation: "Exato! A extensão leva a tecnologia e soluções para fora dos muros do campus."
+            },
+            {
+                question: "O profissional formado em TADS pode atuar em quais áreas do mercado tecnológico?",
+                options: ["Apenas em suporte técnico de impressoras", "Desenvolvimento web, mobile, ciência de dados, testes, gestão de projetos e muito mais", "Somente como digitador de documentos antigos", "Apenas na fabricação de cabos de rede"],
+                answer: 1,
+                explanation: "Perfeito! O leque de atuação no mercado de TI é imenso."
+            },
+            {
+                question: "O que caracteriza uma metodologia ágil (muito estudada em cursos de tecnologia modernos)?",
+                options: ["Entregas lentas que demoram 10 anos para ficarem prontas", "Flexibilidade, entregas contínuas de valor e adaptação rápida a mudanças", "Proibição total de comunicação entre a equipe", "Uso exclusivo de formulários em papel carbono"],
+                answer: 1,
+                explanation: "Isso mesmo! Agilidade e adaptação rápida são cruciais no desenvolvimento moderno."
+            },
+            {
+                question: "Como os estudantes e egressos de TADS costumam interagir e divulgar novidades sobre o curso?",
+                options: ["Através de cartas enviadas pelos Correios", "Por meio de redes sociais oficiais como o perfil @facul_tads", "Exclusivamente por telegramas impressos", "Apenas através de jornais de circulação quinzenal"],
+                answer: 1,
+                explanation: "Correto! O Instagram @facul_tads é um ótimo exemplo de canal de comunicação do curso."
+            },
+            {
+                question: "O que é um Sistema de Gerenciamento de Banco de Dados (SGBD) estudado em TADS?",
+                options: ["Um armário de aço com gavetas para guardar pastas", "Um software para criar, manipular e consultar bases de dados de forma segura", "Um antivírus para bloquear invasões de rede", "Um editor de textos simples"],
+                answer: 1,
+                explanation: "Exato! SGBDs como PostgreSQL e MySQL gerenciam dados com eficiência."
+            },
+            {
+                question: "O que significa a linguagem SQL no contexto de bancos de dados relacionais?",
+                options: ["Simple Question Language", "Structured Query Language (Linguagem de Consulta Estruturada)", "System Quality Logic", "Software Quick Link"],
+                answer: 1,
+                explanation: "Perfeito! SQL é a linguagem padrão para interagir com bancos de dados relacionais."
+            },
+            {
+                question: "Qual é a função do Controle de Versão (como o Git e o GitHub) na engenharia de software?",
+                options: ["Deletar códigos antigos permanentemente", "Rastrear alterações, facilitar o trabalho em equipe e evitar a perda de código", "Imprimir apostilas automaticamente", "Acelerar a velocidade da internet"],
+                answer: 1,
+                explanation: "Isso mesmo! Git e GitHub são ferramentas essenciais para qualquer desenvolvedor."
+            },
+            {
+                question: "O que é o Desenvolvimento Front-End em um projeto de software?",
+                options: ["A parte visual e interativa que roda no navegador do usuário", "A infraestrutura de servidores e banco de dados isolada", "O cabeamento elétrico do computador", "A montagem da placa mãe"],
+                answer: 0,
+                explanation: "Correto! Front-end é tudo o que o usuário vê e interage na tela."
+            },
+            {
+                question: "O que é o Desenvolvimento Back-End em uma aplicação?",
+                options: ["A lógica de negócios, regras do sistema e manipulação de dados no servidor", "A cor dos botões da tela", "O design do logotipo da empresa", "A limpeza física do teclado"],
+                answer: 0,
+                explanation: "Exato! O back-end roda nos bastidores processando requisições e regras."
+            },
+            {
+                question: "Qual é a principal utilidade dos testes de software durante o desenvolvimento?",
+                options: ["Encontrar e corrigir bugs antes que o sistema chegue ao usuário final", "Garantir que o sistema trave de propósito", "Dificultar a entrega do produto", "Aumentar o peso do arquivo executável"],
+                answer: 0,
+                explanation: "Perfeito! Testar garante a qualidade e confiabilidade do software."
+            },
+            {
+                question: "O que significa Orientação a Objetos (POO) em programação?",
+                options: ["Um paradigma baseado em classes e objetos que modelam o mundo real", "Uma técnica para desenhar gráficos vetoriais à mão", "Um tipo de vírus de computador", "Uma norma de segurança de rede"],
+                answer: 0,
+                explanation: "Isso mesmo! POO organiza o software em torno de objetos e comportamentos."
+            },
+            {
+                question: "O que é uma API (Application Programming Interface)?",
+                options: ["Um conjunto de regras que permite a comunicação entre diferentes sistemas", "Uma placa física de vídeo", "Um tipo de cabo de rede submarino", "Um programa antivírus"],
+                answer: 0,
+                explanation: "Correto! APIs permitem que sistemas distintos troquem dados entre si."
+            },
+            {
+                question: "Por que a documentação de um sistema é importante no ciclo de vida de desenvolvimento?",
+                options: ["Facilita a manutenção, o entendimento do código por outros desenvolvedores e futuros ajustes", "Serve apenas para ocupar espaço em disco", "É opcional e nunca é utilizada", "Substitui os testes de código"],
+                answer: 0,
+                explanation: "Exato! Uma boa documentação poupa horas de trabalho futuro."
+            },
+            {
+                question: "O que é computação em nuvem (Cloud Computing)?",
+                options: ["Armazenar dados e rodar aplicações em servidores remotos acessados pela internet", "Fazer backups em disquetes guardados no armário", "Utilizar computadores durante tempestades de verão", "Programar apenas em dias nublados"],
+                answer: 0,
+                explanation: "Perfeito! A nuvem oferece escalabilidade e flexibilidade aos sistemas."
+            },
+            {
+                question: "Qual é a importância da Segurança da Informação nos dias atuais?",
+                options: ["Proteger dados confidenciais contra acessos não autorizados e ataques cibernéticos", "Impedir que o computador seja ligado", "Apenas decorar senhas difíceis", "Desligar a internet da faculdade"],
+                answer: 0,
+                explanation: "Correto! A segurança protege informações críticas de usuários e empresas."
+            },
+            {
+                question: "O que é UX (User Experience) em projetos de desenvolvimento?",
+                options: ["A experiência e satisfação do usuário ao interagir com o sistema", "A velocidade do processador do servidor", "A quantidade de linhas de código escritas", "O custo financeiro do projeto"],
+                answer: 0,
+                explanation: "Isso mesmo! Focar em UX garante que o sistema seja intuitivo e agradável de usar."
+            },
+            {
+                question: "O que é UI (User Interface) em contraste com UX?",
+                options: ["O design visual e a interface gráfica com que o usuário interage diretamente", "O código binário do sistema operacional", "A estrutura do banco de dados relacional", "O roteador de rede local"],
+                answer: 0,
+                explanation: "Exato! UI cuida da parte visual e estética dos botões, cores e layouts."
+            },
+            {
+                question: "O que é um algoritmo na ciência da computação?",
+                options: ["Uma sequência finita de passos lógicos para resolver um problema", "Um erro de sintaxe no código", "Uma peça de hardware defeituosa", "Um tipo de licença de software livre"],
+                answer: 0,
+                explanation: "Correto! Algoritmo é a base lógica de qualquer programa de computador."
+            },
+            {
+                question: "Qual é o papel do Tecnólogo em TADS em equipes multidisciplinares de tecnologia?",
+                options: ["Atuar desde a concepção e requisitos até a entrega e manutenção de soluções digitais", "Apenas assinar documentos burocráticos", "Trabalhar de forma totalmente isolada sem falar com ninguém", "Cuidar apenas da limpeza dos computadores"],
+                answer: 0,
+                explanation: "Perfeito! O profissional de TADS é versátil e atua em várias frentes de TI."
+            },
+            {
+                question: "O que são metodologias ágeis como o Scrum?",
+                options: ["Frameworks de gestão de projetos que dividem o trabalho em ciclos curtos chamados Sprints", "Regras rígidas que proíbem alterações no projeto", "Manuais impressos de 1000 páginas", "Ferramentas de formatação de computadores"],
+                answer: 0,
+                explanation: "Isso mesmo! O Scrum organiza equipes para entregas rápidas e eficientes."
+            },
+            {
+                question: "O que é código limpo (Clean Code)?",
+                options: ["Código fácil de ler, entender, manter e sem complexidades desnecessárias", "Código que passou por produtos de limpeza física", "Código apagado do editor por engano", "Código escrito em uma única linha gigantesca"],
+                answer: 0,
+                explanation: "Correto! Escrever código limpo é fundamental para equipes profissionais."
+            },
+            {
+                question: "Por que o ecossistema de software livre e de código aberto é forte no IFSul?",
+                options: ["Estimula a colaboração, o aprendizado compartilhado e a autonomia tecnológica", "Porque impede qualquer pessoa de usar o software", "Porque custa muito caro para licenciar", "Porque proíbe modificações no código"],
+                answer: 0,
+                explanation: "Exato! O software livre promove liberdade, estudo e cooperação em rede."
+            },
+            {
+                question: "Como o curso de TADS do IFSul Camaquã se conecta com o futuro profissional dos estudantes?",
+                options: ["Unindo teoria sólida, laboratórios práticos e conexão direta com as demandas do mercado de TI", "Ensinando apenas teorias abstratas sem aplicação", "Formando profissionais focados em tarefas analógicas", "Sem nenhuma relação com o mercado moderno"],
+                answer: 0,
+                explanation: "Perfeito! O curso prepara o aluno para os desafios reais da carreira em tecnologia."
+            },
+            {
+                question: "Qual destas redes sociais oficiais você deve seguir para acompanhar todas as novidades do curso em Camaquã?",
+                options: ["@facul_tads", "@tads_fantasma", "@informatica_geral", "@ifsul_esporte"],
+                answer: 0,
+                explanation: "Isso aí! Siga sempre o perfil oficial @facul_tads no Instagram!"
+            }
+        ];
+
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const startScreen = document.getElementById("start-screen");
+        const quizBox = document.getElementById("quiz-box");
+        const endScreen = document.getElementById("end-screen");
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const questionCounter = document.getElementById("question-counter");
+        const scoreDisplay = document.getElementById("score-display");
+        const feedbackContainer = document.getElementById("feedback-container");
+        const nextBtn = document.getElementById("next-btn");
+
+        function startGame() {
+            let shuffledBank = [...questionBank].sort(() => Math.random() - 0.5);
+            activeQuestions = shuffledBank.slice(0, 10);
+
+            currentQuestionIndex = 0;
+            score = 0;
+            startScreen.classList.add("hide");
+            endScreen.classList.add("hide");
+            quizBox.classList.remove("hide");
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            feedbackContainer.innerHTML = "";
+            nextBtn.classList.add("hide");
+            
+            const currentQ = activeQuestions[currentQuestionIndex];
+            questionCounter.innerText = `Questão ${currentQuestionIndex + 1}/${activeQuestions.length}`;
+            scoreDisplay.innerText = `Pontos: ${score}`;
+            questionText.innerText = currentQ.question;
+
+            optionsContainer.innerHTML = "";
+            currentQ.options.forEach((option, index) => {
+                const btn = document.createElement("button");
+                btn.classList.add("option-btn");
+                btn.innerText = option;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex, selectedBtn) {
+            const currentQ = activeQuestions[currentQuestionIndex];
+            const allButtons = optionsContainer.querySelectorAll(".option-btn");
+
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentQ.answer) {
+                selectedBtn.classList.add("correct");
+                score += 10;
+                feedbackContainer.style.color = "var(--verde)";
+                feedbackContainer.innerHTML = `✅ Correto! ${currentQ.explanation}`;
+            } else {
+                selectedBtn.classList.add("wrong");
+                allButtons[currentQ.answer].classList.add("correct");
+                feedbackContainer.style.color = "var(--vermelho)";
+                feedbackContainer.innerHTML = `❌ Incorreto. ${currentQ.explanation}`;
+            }
+
+            scoreDisplay.innerText = `Pontos: ${score}`;
+            
+            if (currentQuestionIndex < activeQuestions.length - 1) {
+                nextBtn.classList.remove("hide");
+            } else {
+                setTimeout(() => showEndScreen(), 4000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) {
+                loadQuestion();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            quizBox.classList.add("hide");
+            endScreen.classList.remove("hide");
+            
+            let message = `Você fez ${score} de 100 pontos no <strong>Desafio do Facultads</strong>! `;
+            if (score === 100) {
+                message += "Incrível! Gabaritou e é um verdadeiro mestre em TADS no IFSul Camaquã!";
+            } else if (score >= 70) {
+                message += "Excelente desempenho! Você conhece muito bem a história e os detalhes do curso.";
+            } else {
+                message += "Bom esforço! Que tal pesquisar mais sobre o campus Camaquã e tentar de novo?";
+            }
+            document.getElementById("final-message").innerHTML = message;
+        }
+    </script>
+</body>
+</html>
